@@ -1,6 +1,7 @@
 package pl.bartlomiej.emailverifydemo.user;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +15,12 @@ public class UserController {
     private final UserServiceImpl userService;
 
     @GetMapping
-    public List<User> getUsers() {
-        return userService.getUsers();
+    public ResponseEntity<List<User>> getUsers() {
+        List<User> userList = userService.getUsers();
+        if(!userList.isEmpty()) {
+            return ResponseEntity.ok().body(userList);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
     }
 }
