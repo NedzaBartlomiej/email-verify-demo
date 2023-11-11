@@ -1,4 +1,20 @@
 package pl.bartlomiej.emailverifydemo.event;
 
-public class RegistrationCompleteEvent {
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.context.ApplicationEvent;
+import pl.bartlomiej.emailverifydemo.user.User;
+
+@Getter
+@Setter
+public class RegistrationCompleteEvent extends ApplicationEvent {
+
+    private User user;
+    private String appUrl;
+
+    public RegistrationCompleteEvent(User user, String appUrl) {
+        super(user);
+        this.user = user;
+        this.appUrl = appUrl;
+    }
 }

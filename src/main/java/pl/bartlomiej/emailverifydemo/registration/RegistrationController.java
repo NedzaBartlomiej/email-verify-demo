@@ -1,29 +1,70 @@
 package pl.bartlomiej.emailverifydemo.registration;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import pl.bartlomiej.emailverifydemo.event.RegistrationCompleteEvent;
+import pl.bartlomiej.emailverifydemo.registration.verifyToken.VerifyTokenService;
+import pl.bartlomiej.emailverifydemo.registration.verifyToken.VerifyToken;
 import pl.bartlomiej.emailverifydemo.user.User;
-import pl.bartlomiej.emailverifydemo.user.UserServiceImpl;
+import pl.bartlomiej.emailverifydemo.user.UserService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/register")
+@RequestMapping("/api/v1/register")
 public class RegistrationController {
-    private final UserServiceImpl userService;
-    private final RegistrationServiceImpl registrationService;
+    private final UserService userService;
+    private final ApplicationEventPublisher publisher;
+    private final VerifyTokenService tokenService;
 
     @PostMapping
-    public ResponseEntity<?> registerUser(RegistrationRequest registrationRequest) {
-        User registeredUser = userService.registerUser(registrationRequest);
-        // publish registration event
-        if(registrationRequest != null) {
-            var acceptedRegisteredUserResponse = registrationService.createRegistrationResponse(registeredUser, "Registration successful. An activation link has been sent to your email.");
-            return ResponseEntity.accepted().body(acceptedRegisteredUserResponse);
+    public ResponseEntity<?> registerUser(@RequestBody RegistrationRequest registrationRequest, final HttpServletRequest servletRequest) {
+        if(userService.findByEmail(registrationRequest.email()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Provided email already exists.");
         } else {
-            return ResponseEntity.badRequest().body("Registration failed. Check the data provided in the request.");
+            User registeredUser = userService.registerUser(registrationRequest);
+            publisher.publishEvent(new RegistrationCompleteEvent(registeredUser, getAppUrl(servletRequest)));
+            var acceptedRegisteredUserResponse = createSuccesfulRegistrationResponse(registeredUser, "Registration complete. An activation link has been sent to your email.");
+            return ResponseEntity.accepted().body(acceptedRegisteredUserResponse);
         }
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyEmail(@RequestParam("token") String verifyToken) {
+        //todo: it can be return null, handle it!
+        VerifyToken token = tokenService.findByToken(verifyToken);
+        if(token.getUser().isEnabled()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Your account is already verified.");
+        }
+        VerifyTokenService.TokenValidateStatus tokenValidateStatus = tokenService.validateVerifyToken(verifyToken);
+        switch (tokenValidateStatus) {
+            case NOT_EXISTS -> {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Token does not exist.");
+            }
+            case VALID -> {
+                return ResponseEntity.status(HttpStatus.OK).body("Your account has been successfully verified, you can log in.");
+            }
+            default -> {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unhandled case. Something went wrong.");
+            }
+        }
+    }
+
+    private String getAppUrl(HttpServletRequest servletRequest) {
+        return String.valueOf(servletRequest.getRequestURL());
+    }
+
+
+    private Map<String, Object> createSuccesfulRegistrationResponse(User registeredUser, String responseMessage) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("registeredUser", registeredUser);
+        response.put("responseMessage", responseMessage);
+        return response;
     }
 }

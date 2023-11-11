@@ -1,6 +1,8 @@
-package pl.bartlomiej.emailverifydemo.registration.token;
+package pl.bartlomiej.emailverifydemo.registration.verifyToken;
 
-public interface TokenService {
+import java.util.List;
+
+public interface VerifyTokenService {
     enum TokenValidateStatus {
         NOT_EXISTS, EXPIRED, VALID
     }
