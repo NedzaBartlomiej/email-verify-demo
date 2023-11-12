@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface VerifyTokenService {
     enum TokenValidateStatus {
-        NOT_EXISTS, EXPIRED, VALID
+        NOT_EXISTS, EXPIRED, USED, VALID
     }
 
     public VerifyToken findByToken(String token);

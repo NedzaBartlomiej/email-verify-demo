@@ -19,7 +19,7 @@ public class UserServiceImpl implements UserService {
     private final VerifyTokenRepository verifyTokenRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Cacheable("getUsersCache")
+    @Cacheable(cacheNames = "userCache", cacheManager = "usersCacheManager")
     @Override
     public List<User> getUsers() {
         return userRepository.findAll();

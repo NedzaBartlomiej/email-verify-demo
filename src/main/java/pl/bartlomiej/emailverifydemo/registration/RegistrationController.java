@@ -37,15 +37,16 @@ public class RegistrationController {
 
     @GetMapping("/verify")
     public ResponseEntity<?> verifyEmail(@RequestParam("token") String verifyToken) {
-        //todo: it can be return null, handle it!
-        VerifyToken token = tokenService.findByToken(verifyToken);
-        if(token.getUser().isEnabled()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Your account is already verified.");
-        }
         VerifyTokenService.TokenValidateStatus tokenValidateStatus = tokenService.validateVerifyToken(verifyToken);
         switch (tokenValidateStatus) {
             case NOT_EXISTS -> {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Token does not exist.");
+            }
+            case EXPIRED -> {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Token is expired.");
+            }
+            case USED -> {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Your account is already verified.");
             }
             case VALID -> {
                 return ResponseEntity.status(HttpStatus.OK).body("Your account has been successfully verified, you can log in.");
