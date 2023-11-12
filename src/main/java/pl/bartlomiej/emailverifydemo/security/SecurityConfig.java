@@ -27,7 +27,7 @@ public class UserRegistrationSecurityConfig {
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers("/api/v1/register/**").permitAll()
                                 .requestMatchers("/api/v1/users/**").hasAnyAuthority("USER", "ADMIN")
-                ).formLogin(formLoginCustomizer ->
+                ).formLogin(formLoginCustomizer -> //todo: make JSON for frontend endpoint for login
                         formLoginCustomizer
                                 .defaultSuccessUrl("/api/v1/users", true))
                 .logout(httpSecurityLogoutConfigurer ->
