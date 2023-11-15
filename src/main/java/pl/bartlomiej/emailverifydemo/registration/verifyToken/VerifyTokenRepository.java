@@ -13,4 +13,7 @@ public interface VerifyTokenRepository extends JpaRepository<VerifyToken, Long> 
 
     @Query("SELECT vt FROM VerifyToken vt WHERE vt.expirationTime <= CURRENT_TIMESTAMP")
     List<VerifyToken> findExpiredVerifyTokens();
+
+    @Query("SELECT vt FROM VerifyToken vt WHERE vt.isUsed = true")
+    List<VerifyToken> findUsedVerifyTokens();
 }

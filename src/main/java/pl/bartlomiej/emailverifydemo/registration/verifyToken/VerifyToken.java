@@ -25,6 +25,7 @@ public class VerifyToken {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+    private boolean isUsed;
 
     public VerifyToken(String token, User user) {
         super();
