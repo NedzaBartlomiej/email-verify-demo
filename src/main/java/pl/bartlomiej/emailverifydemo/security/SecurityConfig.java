@@ -12,7 +12,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    private final String apiVersionUrl = "/api/v1";
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -26,17 +25,17 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
-                                .requestMatchers(apiVersionUrl + "/register/**").permitAll()
-                                .requestMatchers(apiVersionUrl + "/users/**").hasAnyAuthority("USER", "ADMIN")
+                                .requestMatchers("/register/**").permitAll()
+                                .requestMatchers("/users").hasAnyAuthority("USER", "ADMIN")
+                                .requestMatchers("/logs/**").hasAuthority("ADMIN")
                 ).formLogin(formLoginCustomizer -> //todo: make JSON for frontend endpoint for login
                         formLoginCustomizer
-                                .defaultSuccessUrl(apiVersionUrl + "/users", true)
-                                .loginPage(apiVersionUrl + "/login") //todo: this own login endpoint
-                                .permitAll())
-                .logout(httpSecurityLogoutConfigurer ->
+                                .loginPage("/login") //todo: this own login endpoint
+                                .permitAll()
+                ).logout(httpSecurityLogoutConfigurer ->
                         httpSecurityLogoutConfigurer
-                                .logoutUrl(apiVersionUrl + "/logout")
-                                .logoutSuccessUrl(apiVersionUrl + "/login"));
+                                .logoutUrl("/logout")
+                                .logoutSuccessUrl("/login"));
         return httpSecurity.build();
     }
 }

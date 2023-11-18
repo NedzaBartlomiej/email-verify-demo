@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -16,5 +17,10 @@ public class LogServiceImpl implements LogService {
         Date eventTime = new Date(System.currentTimeMillis());
         Log newLog = new Log(eventTime, eventMessage);
         logRepository.save(newLog);
+    }
+
+    @Override
+    public List<Log> getLogs() {
+        return logRepository.findAll();
     }
 }
