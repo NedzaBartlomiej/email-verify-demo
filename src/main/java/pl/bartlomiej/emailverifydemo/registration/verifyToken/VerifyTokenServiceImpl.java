@@ -45,10 +45,11 @@ public class VerifyTokenServiceImpl implements VerifyTokenService {
             userService.save(user);
             verifyToken.setUsed(true);
             verifyTokenRepository.save(verifyToken);
+            logService.createLog("User with email: " + user.getEmail() + " has been verified");
             return TokenValidateStatus.VALID;
         }
     }
-    
+
     @Scheduled(cron = "0 0/1 * * * ?")
     @Transactional
     public void deleteExpiredOrUsedTokens() {

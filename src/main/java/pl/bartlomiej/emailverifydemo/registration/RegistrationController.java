@@ -2,41 +2,43 @@ package pl.bartlomiej.emailverifydemo.registration;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.bartlomiej.emailverifydemo.event.RegistrationCompleteEvent;
 import pl.bartlomiej.emailverifydemo.registration.verifyToken.VerifyTokenService;
-import pl.bartlomiej.emailverifydemo.registration.verifyToken.VerifyToken;
-import pl.bartlomiej.emailverifydemo.user.User;
-import pl.bartlomiej.emailverifydemo.user.UserService;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/register")
 public class RegistrationController {
-    private final UserService userService;
-    private final ApplicationEventPublisher publisher;
+
+    private final RegistrationService registrationService;
     private final VerifyTokenService tokenService;
 
     @PostMapping
     public ResponseEntity<?> registerUser(@RequestBody RegistrationRequest registrationRequest, final HttpServletRequest servletRequest) {
-        if(userService.findByEmail(registrationRequest.email()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Provided email already exists.");
-        } else {
-            User registeredUser = userService.registerUser(registrationRequest);
-            publisher.publishEvent(new RegistrationCompleteEvent(registeredUser, getAppUrl(servletRequest)));
-            var acceptedRegisteredUserResponse = createSuccesfulRegistrationResponse(registeredUser, "Registration complete. An activation link has been sent to your email.");
-            return ResponseEntity.accepted().body(acceptedRegisteredUserResponse);
+        RegistrationService.RegistrationResponse registrationResponse = registrationService.registerUser(registrationRequest, servletRequest);
+        switch (registrationResponse.getRegistrationStatus()) {
+            case NULL_CREDENTIALS -> {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Null data was posted in request.");
+            }
+            case USER_EXISTS -> {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("User with email: " + registrationRequest.email() + " already exist.");
+            }
+            case VALID -> {
+                Map<String, Object> successfulRegistrationResponse = registrationService.createSuccessfulRegistrationResponse(registrationResponse.getRegisteredUser(), "Registration complete. An activation link has been sent to your email.");
+                return ResponseEntity.status(HttpStatus.CREATED).body(successfulRegistrationResponse);
+            }
+            default -> {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unhandled case. Something went wrong.");
+            }
         }
     }
 
     @GetMapping("/verify")
-    public ResponseEntity<?> verifyEmail(@RequestParam("token") String verifyToken) {
+    public ResponseEntity<String> verifyEmail(@RequestParam("token") String verifyToken) {
         VerifyTokenService.TokenValidateStatus tokenValidateStatus = tokenService.validateVerifyToken(verifyToken);
         switch (tokenValidateStatus) {
             case NOT_EXISTS -> {
@@ -46,26 +48,14 @@ public class RegistrationController {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Token is expired.");
             }
             case USED -> {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Your account is already verified.");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Account is already verified.");
             }
             case VALID -> {
-                return ResponseEntity.status(HttpStatus.OK).body("Your account has been successfully verified, you can log in.");
+                return ResponseEntity.status(HttpStatus.OK).body("Account has been successfully verified, you can log in.");
             }
             default -> {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unhandled case. Something went wrong.");
             }
         }
-    }
-
-    private String getAppUrl(HttpServletRequest servletRequest) {
-        return String.valueOf(servletRequest.getRequestURL());
-    }
-
-
-    private Map<String, Object> createSuccesfulRegistrationResponse(User registeredUser, String responseMessage) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("registeredUser", registeredUser);
-        response.put("responseMessage", responseMessage);
-        return response;
     }
 }
