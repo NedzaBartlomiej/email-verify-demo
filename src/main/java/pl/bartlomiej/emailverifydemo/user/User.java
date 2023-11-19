@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.NaturalId;
 
 @Entity
@@ -27,11 +28,12 @@ public class User {
     private String role;
     private boolean isEnabled = false;
 
-    public User(String firstName, String lastName, String email, String password, String role) {
+    // Register constructor
+    public User(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
-        this.role = role;
+        this.role = "USER";
     }
 }

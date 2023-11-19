@@ -24,16 +24,14 @@ public class UserServiceImpl implements UserService {
     public List<User> getUsers() {
         return userRepository.findAll();
     }
-    
+
     @Override
     public User registerUser(RegistrationRequest requestUser) {
-        //todo: make validation if requestUser.field is null
         User registeredUser = new User(
                 requestUser.firstName(),
                 requestUser.lastName(),
                 requestUser.email(),
-                passwordEncoder.encode(requestUser.password()),
-                requestUser.role());
+                passwordEncoder.encode(requestUser.password()));
         System.out.println(requestUser.email());
         return userRepository.save(registeredUser);
     }

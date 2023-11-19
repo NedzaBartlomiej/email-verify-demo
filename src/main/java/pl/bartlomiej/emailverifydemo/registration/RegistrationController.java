@@ -21,8 +21,8 @@ public class RegistrationController {
     public ResponseEntity<?> registerUser(@RequestBody RegistrationRequest registrationRequest, final HttpServletRequest servletRequest) {
         RegistrationService.RegistrationResponse registrationResponse = registrationService.registerUser(registrationRequest, servletRequest);
         switch (registrationResponse.getRegistrationStatus()) {
-            case NULL_CREDENTIALS -> {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Null data was posted in request.");
+            case BAD_CREDENTIALS -> {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
             case USER_EXISTS -> {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("User with email: " + registrationRequest.email() + " already exist.");

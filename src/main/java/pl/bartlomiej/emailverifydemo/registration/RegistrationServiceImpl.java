@@ -9,10 +9,9 @@ import pl.bartlomiej.emailverifydemo.log.LogService;
 import pl.bartlomiej.emailverifydemo.user.User;
 import pl.bartlomiej.emailverifydemo.user.UserService;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +23,20 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public RegistrationResponse registerUser(RegistrationRequest registrationRequest, HttpServletRequest servletRequest) {
-        if (Arrays.stream(registrationRequest.getClass().getDeclaredFields()).anyMatch(Objects::isNull)) {
-            return new RegistrationResponse(RegistrationStatus.NULL_CREDENTIALS, null);
+
+        boolean isRegistrationRequestFieldsAreBlankOrNull =
+                Stream.of(RegistrationRequest.class.getDeclaredFields()).map(field -> {
+                    field.setAccessible(true);
+                    try {
+                        return field.get(registrationRequest).toString();
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }).anyMatch(value -> value == null || value.isBlank());
+
+        if (isRegistrationRequestFieldsAreBlankOrNull) {
+            return new RegistrationResponse(RegistrationStatus.BAD_CREDENTIALS, null);
         } else if (userService.findByEmail(registrationRequest.email()).isPresent()) {
             return new RegistrationResponse(RegistrationStatus.USER_EXISTS, null);
         } else {

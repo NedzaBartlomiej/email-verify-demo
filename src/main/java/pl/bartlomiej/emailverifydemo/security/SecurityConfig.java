@@ -1,5 +1,6 @@
 package pl.bartlomiej.emailverifydemo.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,6 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     @Bean
@@ -28,10 +30,9 @@ public class SecurityConfig {
                                 .requestMatchers("/register/**").permitAll()
                                 .requestMatchers("/users").hasAnyAuthority("USER", "ADMIN")
                                 .requestMatchers("/logs/**").hasAuthority("ADMIN")
-                ).formLogin(formLoginCustomizer -> //todo: make JSON for frontend endpoint for login
-                        formLoginCustomizer
-                                .loginPage("/login") //todo: this own login endpoint
-                                .permitAll()
+                ).formLogin(formLoginConfigurer ->
+                        formLoginConfigurer
+                                .defaultSuccessUrl("/users", true)
                 ).logout(httpSecurityLogoutConfigurer ->
                         httpSecurityLogoutConfigurer
                                 .logoutUrl("/logout")

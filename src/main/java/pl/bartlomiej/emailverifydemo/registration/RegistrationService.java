@@ -10,7 +10,7 @@ import java.util.Map;
 public interface RegistrationService {
 
     enum RegistrationStatus {
-        NULL_CREDENTIALS, USER_EXISTS, VALID
+        BAD_CREDENTIALS, USER_EXISTS, VALID
     }
 
     @Getter

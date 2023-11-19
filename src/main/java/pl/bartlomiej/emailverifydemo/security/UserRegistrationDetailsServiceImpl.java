@@ -11,10 +11,11 @@ import pl.bartlomiej.emailverifydemo.user.UserService;
 @RequiredArgsConstructor
 public class UserRegistrationDetailsServiceImpl implements UserDetailsService {
     private final UserService userService;
+
     @Override //loading by email (natural key)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userService.findByEmail(email)
                 .map(UserRegistrationDetails::new)
-                .orElseThrow(() -> new UsernameNotFoundException("User with email: "+email+" not found."));
+                .orElseThrow(() -> new UsernameNotFoundException("User with email: " + email + " not found."));
     }
 }
