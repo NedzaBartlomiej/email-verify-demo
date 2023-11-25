@@ -1,4 +1,4 @@
-package pl.bartlomiej.emailverifydemo.globalConfig;
+package pl.bartlomiej.emailverifydemo.global_config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.RequiredArgsConstructor;

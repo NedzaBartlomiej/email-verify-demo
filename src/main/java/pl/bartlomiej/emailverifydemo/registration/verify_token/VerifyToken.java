@@ -1,4 +1,4 @@
-package pl.bartlomiej.emailverifydemo.registration.verifyToken;
+package pl.bartlomiej.emailverifydemo.registration.verify_token;
 
 import jakarta.persistence.*;
 import lombok.Getter;

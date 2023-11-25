@@ -1,14 +1,19 @@
-server:
-  port: 8080
-  servlet:
-    context-path: /api/v1
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/spring_verify_app
-    username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    url: jdbc:mysql://localhost:3306/spring_verify_app
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: 'true'
+server:
+  servlet:
+    context-path: /api/v1
+  port: '8080'
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

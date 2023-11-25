@@ -1,4 +1,4 @@
-package pl.bartlomiej.emailverifydemo.registration.verifyToken;
+package pl.bartlomiej.emailverifydemo.registration.verify_token;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -42,7 +42,7 @@ public class VerifyTokenServiceImpl implements VerifyTokenService {
             }
             User user = verifyToken.getUser();
             user.setEnabled(true);
-            userService.save(user);
+            userService.saveUser(user);
             verifyToken.setUsed(true);
             verifyTokenRepository.save(verifyToken);
             logService.createLog("User with email: " + user.getEmail() + " has been verified");
@@ -57,6 +57,7 @@ public class VerifyTokenServiceImpl implements VerifyTokenService {
         List<VerifyToken> usedVerifyTokens = verifyTokenRepository.findUsedVerifyTokens();
         if (!expiredVerifyTokens.isEmpty() || !usedVerifyTokens.isEmpty()) {
             verifyTokenRepository.deleteAll(expiredVerifyTokens);
+            verifyTokenRepository.deleteAll(usedVerifyTokens);
             logService.createLog(expiredVerifyTokens.size() + " expired tokens have been removed.");
             logService.createLog(usedVerifyTokens.size() + " used tokens have been removed.");
         } else {

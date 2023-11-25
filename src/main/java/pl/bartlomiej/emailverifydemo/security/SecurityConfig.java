@@ -3,6 +3,7 @@ package pl.bartlomiej.emailverifydemo.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -28,8 +29,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers("/register/**").permitAll()
-                                .requestMatchers("/users").hasAnyAuthority("USER", "ADMIN")
-                                .requestMatchers("/logs/**").hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/users/**").hasAnyAuthority("USER", "ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/users/**").hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.PATCH, "/users/*/roles").hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/logs/**").hasAuthority("ADMIN")
                 ).formLogin(formLoginConfigurer ->
                         formLoginConfigurer
                                 .defaultSuccessUrl("/users", true)

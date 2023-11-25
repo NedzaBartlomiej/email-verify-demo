@@ -9,8 +9,9 @@ public interface UserService {
     List<User> getUsers();
     User registerUser(RegistrationRequest request);
     Optional<User> findByEmail(String email);
+    Optional<User> findById(Long id);
     void saveUserVerifyToken(User validRegisteredUser, String verifyToken);
-    User save(User user);
-
-
+    void saveUser(User user);
+    void deleteUser(Long id);
+    void grantAdminRole(Long id);
 }

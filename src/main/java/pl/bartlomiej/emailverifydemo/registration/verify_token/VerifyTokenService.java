@@ -1,6 +1,4 @@
-package pl.bartlomiej.emailverifydemo.registration.verifyToken;
-
-import java.util.List;
+package pl.bartlomiej.emailverifydemo.registration.verify_token;
 
 public interface VerifyTokenService {
     enum TokenValidateStatus {

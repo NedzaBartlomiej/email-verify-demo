@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-//import pl.bartlomiej.emailverifydemo.exception.UserAlreadyExistException;
+import org.springframework.transaction.annotation.Transactional;
+import pl.bartlomiej.emailverifydemo.exceptions.user.UserHasRoleException;
+import pl.bartlomiej.emailverifydemo.exceptions.user.UserNotFoundException;
 import pl.bartlomiej.emailverifydemo.registration.RegistrationRequest;
-import pl.bartlomiej.emailverifydemo.registration.verifyToken.VerifyToken;
-import pl.bartlomiej.emailverifydemo.registration.verifyToken.VerifyTokenRepository;
+import pl.bartlomiej.emailverifydemo.registration.verify_token.VerifyToken;
+import pl.bartlomiej.emailverifydemo.registration.verify_token.VerifyTokenRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +39,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    @Override
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -48,7 +55,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User save(User user) {
-        return userRepository.save(user);
+    public void saveUser(User user) {
+        userRepository.save(user);
     }
+
+    @Override
+    @Transactional
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void grantAdminRole(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        final String assignedRole = "ADMIN";
+        if (user.isPresent()) {
+            if (user.get().getRole().equals("USER")) {
+                userRepository.updateRoleById(assignedRole, id);
+            } else {
+                throw new UserHasRoleException(assignedRole);
+            }
+        } else {
+            throw new UserNotFoundException();
+        }
+    }
+
 }

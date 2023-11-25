@@ -1,4 +1,4 @@
-package pl.bartlomiej.emailverifydemo.globalConfig;
+package pl.bartlomiej.emailverifydemo.global_config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
