@@ -2,6 +2,7 @@ package pl.bartlomiej.emailverifydemo.log;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.bartlomiej.emailverifydemo.exceptions.global.NoContentException;
 
 import java.util.Date;
 import java.util.List;
@@ -21,6 +22,11 @@ public class LogServiceImpl implements LogService {
 
     @Override
     public List<Log> getLogs() {
-        return logRepository.findAll();
+        List<Log> logs = logRepository.findAll();
+        if (logs.isEmpty()) {
+            throw new NoContentException();
+        } else {
+            return logs;
+        }
     }
 }

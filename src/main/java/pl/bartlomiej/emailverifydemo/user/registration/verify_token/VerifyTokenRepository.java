@@ -1,4 +1,4 @@
-package pl.bartlomiej.emailverifydemo.registration.verify_token;
+package pl.bartlomiej.emailverifydemo.user.registration.verify_token;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

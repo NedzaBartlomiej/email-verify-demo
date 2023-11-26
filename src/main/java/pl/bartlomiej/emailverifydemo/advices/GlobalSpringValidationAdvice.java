@@ -7,7 +7,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import pl.bartlomiej.emailverifydemo.exceptions.ExceptionPayloadModel;
+import pl.bartlomiej.emailverifydemo.exceptions.model.ExceptionPayloadModel;
 
 import java.util.Objects;
 

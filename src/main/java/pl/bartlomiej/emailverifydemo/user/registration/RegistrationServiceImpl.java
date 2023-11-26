@@ -1,10 +1,11 @@
-package pl.bartlomiej.emailverifydemo.registration;
+package pl.bartlomiej.emailverifydemo.user.registration;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import pl.bartlomiej.emailverifydemo.event.RegistrationCompleteEvent;
+import pl.bartlomiej.emailverifydemo.exceptions.user.UserExistsException;
 import pl.bartlomiej.emailverifydemo.log.LogService;
 import pl.bartlomiej.emailverifydemo.user.User;
 import pl.bartlomiej.emailverifydemo.user.UserService;
@@ -21,17 +22,16 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final LogService logService;
 
     @Override
-    public RegistrationResponse registerUser(RegistrationRequest registrationRequest, HttpServletRequest servletRequest) {
+    public User registerUser(RegistrationRequest registrationRequest, HttpServletRequest servletRequest) {
 
         if (userService.findByEmail(registrationRequest.email()).isPresent()) {
-            return new RegistrationResponse(RegistrationStatus.USER_EXISTS, null);
+            throw new UserExistsException();
         } else {
             User registeredUser = userService.registerUser(registrationRequest);
             publisher.publishEvent(new RegistrationCompleteEvent(registeredUser, getRequestedAppUrl(servletRequest)));
             logService.createLog("User with email: " + registeredUser.getEmail() + " has been registered.");
-            return new RegistrationResponse(RegistrationStatus.VALID, registeredUser);
+            return registeredUser;
         }
-
     }
 
     @Override

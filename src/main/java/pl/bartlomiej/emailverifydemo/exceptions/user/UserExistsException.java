@@ -1,7 +1,12 @@
 package pl.bartlomiej.emailverifydemo.exceptions.user;
 
-public class UserExistsException extends RuntimeException {
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+import pl.bartlomiej.emailverifydemo.exceptions.model.HttpStatusExceptionModel;
+
+@Getter
+public class UserExistsException extends HttpStatusExceptionModel {
     public UserExistsException() {
-        super("User with provided email is already exist.");
+        super("User with provided email is already exist.", HttpStatus.CONFLICT);
     }
 }

@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pl.bartlomiej.emailverifydemo.exceptions.global.GlobalRestControllerException;
+import pl.bartlomiej.emailverifydemo.exceptions.global.NoContentException;
 
 import java.util.List;
 
@@ -18,11 +20,11 @@ public class LogController {
 
     @GetMapping
     public ResponseEntity<List<Log>> getLogs() {
-        List<Log> logs = logService.getLogs();
-        if (logs.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } else {
+        try {
+            List<Log> logs = logService.getLogs();
             return ResponseEntity.status(HttpStatus.OK).body(logs);
+        } catch (NoContentException exception) {
+            throw new GlobalRestControllerException(exception, exception.getHttpStatus());
         }
     }
 }

@@ -1,7 +1,10 @@
 package pl.bartlomiej.emailverifydemo.exceptions.user;
 
-public class UserHasRoleException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+import pl.bartlomiej.emailverifydemo.exceptions.model.HttpStatusExceptionModel;
+
+public class UserHasRoleException extends HttpStatusExceptionModel {
     public UserHasRoleException(String assignedRole) {
-        super("User already have " + assignedRole + " role.");
+        super("User already have " + assignedRole + " role.", HttpStatus.CONFLICT);
     }
 }

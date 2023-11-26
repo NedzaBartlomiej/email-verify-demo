@@ -6,10 +6,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.bartlomiej.emailverifydemo.exceptions.user.UserHasRoleException;
-import pl.bartlomiej.emailverifydemo.exceptions.user.UserNotFoundException;
-import pl.bartlomiej.emailverifydemo.registration.RegistrationRequest;
-import pl.bartlomiej.emailverifydemo.registration.verify_token.VerifyToken;
-import pl.bartlomiej.emailverifydemo.registration.verify_token.VerifyTokenRepository;
+import pl.bartlomiej.emailverifydemo.exceptions.global.ResourceNotFoundException;
+import pl.bartlomiej.emailverifydemo.user.registration.RegistrationRequest;
+import pl.bartlomiej.emailverifydemo.user.registration.verify_token.VerifyToken;
+import pl.bartlomiej.emailverifydemo.user.registration.verify_token.VerifyTokenRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -62,7 +62,11 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+        } else {
+            throw new ResourceNotFoundException();
+        }
     }
 
     @Override
@@ -77,8 +81,7 @@ public class UserServiceImpl implements UserService {
                 throw new UserHasRoleException(assignedRole);
             }
         } else {
-            throw new UserNotFoundException();
+            throw new ResourceNotFoundException();
         }
     }
-
 }

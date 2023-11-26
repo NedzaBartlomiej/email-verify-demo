@@ -1,4 +1,4 @@
-package pl.bartlomiej.emailverifydemo.registration;
+package pl.bartlomiej.emailverifydemo.user.registration;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

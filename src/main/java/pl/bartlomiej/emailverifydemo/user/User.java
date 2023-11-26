@@ -22,7 +22,7 @@ public class User {
     private Long id;
     private String firstName;
     private String lastName;
-    @NaturalId(mutable = true)
+    @NaturalId()
     private String email;
     private String password;
     private String role;

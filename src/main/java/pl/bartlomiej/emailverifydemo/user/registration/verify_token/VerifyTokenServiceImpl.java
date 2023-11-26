@@ -1,4 +1,4 @@
-package pl.bartlomiej.emailverifydemo.registration.verify_token;
+package pl.bartlomiej.emailverifydemo.user.registration.verify_token;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -7,6 +7,9 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.bartlomiej.emailverifydemo.exceptions.global.ResourceNotFoundException;
+import pl.bartlomiej.emailverifydemo.exceptions.registration.ExpiredTokenException;
+import pl.bartlomiej.emailverifydemo.exceptions.registration.UsedTokenException;
 import pl.bartlomiej.emailverifydemo.log.LogService;
 import pl.bartlomiej.emailverifydemo.user.User;
 import pl.bartlomiej.emailverifydemo.user.UserService;
@@ -30,23 +33,21 @@ public class VerifyTokenServiceImpl implements VerifyTokenService {
     }
 
     @Override
-    public TokenValidateStatus validateVerifyToken(String token) {
+    public void validateVerifyToken(String token) {
         VerifyToken verifyToken = self.findByToken(token);
         if (token == null || verifyToken == null) {
-            return TokenValidateStatus.NOT_EXISTS;
+            throw new ResourceNotFoundException();
         } else if ((verifyToken.getExpirationTime().getTime() - System.currentTimeMillis()) <= 0) {
-            return TokenValidateStatus.EXPIRED;
+            throw new ExpiredTokenException(verifyToken.getExpirationTime());
+        } else if (verifyToken.getUser().isEnabled()) {
+            throw new UsedTokenException();
         } else {
-            if (verifyToken.getUser().isEnabled()) {
-                return TokenValidateStatus.USED;
-            }
             User user = verifyToken.getUser();
             user.setEnabled(true);
             userService.saveUser(user);
             verifyToken.setUsed(true);
             verifyTokenRepository.save(verifyToken);
             logService.createLog("User with email: " + user.getEmail() + " has been verified");
-            return TokenValidateStatus.VALID;
         }
     }
 
